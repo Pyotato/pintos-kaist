@@ -1,16 +1,24 @@
 pass tests/threads/alarm-single
 pass tests/threads/alarm-multiple
 pass tests/threads/alarm-simultaneous
+<<<<<<< HEAD
 FAIL tests/threads/alarm-priority
 pass tests/threads/alarm-zero
 pass tests/threads/alarm-negative
 FAIL tests/threads/priority-change
+=======
+pass tests/threads/alarm-priority
+pass tests/threads/alarm-zero
+pass tests/threads/alarm-negative
+pass tests/threads/priority-change
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
 FAIL tests/threads/priority-donate-one
 FAIL tests/threads/priority-donate-multiple
 FAIL tests/threads/priority-donate-multiple2
 FAIL tests/threads/priority-donate-nest
 FAIL tests/threads/priority-donate-sema
 FAIL tests/threads/priority-donate-lower
+<<<<<<< HEAD
 FAIL tests/threads/priority-fifo
 FAIL tests/threads/priority-preempt
 FAIL tests/threads/priority-sema
@@ -25,3 +33,19 @@ pass tests/threads/mlfqs/mlfqs-fair-20
 FAIL tests/threads/mlfqs/mlfqs-nice-2
 FAIL tests/threads/mlfqs/mlfqs-nice-10
 FAIL tests/threads/mlfqs/mlfqs-block
+=======
+pass tests/threads/priority-fifo
+pass tests/threads/priority-preempt
+pass tests/threads/priority-sema
+FAIL tests/threads/priority-condvar
+FAIL tests/threads/priority-donate-chain
+pass tests/threads/mlfqs/mlfqs-load-1
+pass tests/threads/mlfqs/mlfqs-load-60
+pass tests/threads/mlfqs/mlfqs-load-avg
+pass tests/threads/mlfqs/mlfqs-recent-1
+pass tests/threads/mlfqs/mlfqs-fair-2
+pass tests/threads/mlfqs/mlfqs-fair-20
+pass tests/threads/mlfqs/mlfqs-nice-2
+pass tests/threads/mlfqs/mlfqs-nice-10
+pass tests/threads/mlfqs/mlfqs-block
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

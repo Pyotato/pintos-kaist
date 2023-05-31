@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FAIL
 Test output failed to match any acceptable form.
 
@@ -21,3 +22,6 @@ Differences in `diff -u' format:
 - (priority-preempt) Thread high-priority done!
   (priority-preempt) The high-priority thread should have already completed.
   (priority-preempt) end
+=======
+PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

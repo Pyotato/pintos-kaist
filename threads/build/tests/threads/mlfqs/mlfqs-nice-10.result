@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FAIL
 Some tick counts were missing or differed from those expected by more than 25.
 thread   actual <-> expected explanation
@@ -12,3 +13,6 @@ thread   actual <-> expected explanation
      7      300 >>> 92       Too big, by 183.
      8      300 >>> 40       Too big, by 235.
      9      300 >>> 8        Too big, by 267.
+=======
+PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

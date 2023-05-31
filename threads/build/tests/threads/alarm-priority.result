@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FAIL
 Test output failed to match any acceptable form.
 
@@ -30,3 +31,6 @@ Differences in `diff -u' format:
 + (alarm-priority) Thread priority 29 woke up.
 + (alarm-priority) Thread priority 28 woke up.
   (alarm-priority) end
+=======
+PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FAIL
 Test output failed to match any acceptable form.
 
@@ -23,3 +24,6 @@ Differences in `diff -u' format:
 - (mlfqs-block) ...got it.
   (mlfqs-block) Block thread should have already acquired lock.
   (mlfqs-block) end
+=======
+PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

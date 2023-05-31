@@ -36,6 +36,7 @@ Acceptable output:
   (priority-condvar) end
 Differences in `diff -u' format:
   (priority-condvar) begin
+<<<<<<< HEAD
 - (priority-condvar) Thread priority 23 starting.
 - (priority-condvar) Thread priority 22 starting.
 - (priority-condvar) Thread priority 21 starting.
@@ -46,6 +47,18 @@ Differences in `diff -u' format:
 - (priority-condvar) Thread priority 26 starting.
 - (priority-condvar) Thread priority 25 starting.
 - (priority-condvar) Thread priority 24 starting.
+=======
+  (priority-condvar) Thread priority 23 starting.
+  (priority-condvar) Thread priority 22 starting.
+  (priority-condvar) Thread priority 21 starting.
+  (priority-condvar) Thread priority 30 starting.
+  (priority-condvar) Thread priority 29 starting.
+  (priority-condvar) Thread priority 28 starting.
+  (priority-condvar) Thread priority 27 starting.
+  (priority-condvar) Thread priority 26 starting.
+  (priority-condvar) Thread priority 25 starting.
+  (priority-condvar) Thread priority 24 starting.
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
   (priority-condvar) Signaling...
 - (priority-condvar) Thread priority 30 woke up.
   (priority-condvar) Signaling...

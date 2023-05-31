@@ -16,7 +16,12 @@ Executing 'mlfqs-fair-2':
 (mlfqs-fair-2) end
 Execution of 'mlfqs-fair-2' complete.
 Timer: 4023 ticks
+<<<<<<< HEAD
 Thread: 0 idle ticks, 4023 kernel ticks, 0 user ticks
 Console: 671 characters output
+=======
+Thread: 1000 idle ticks, 3023 kernel ticks, 0 user ticks
+Console: 674 characters output
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
 Keyboard: 0 keys pressed
 Powering off...

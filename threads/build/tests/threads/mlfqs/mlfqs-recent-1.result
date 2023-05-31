@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FAIL
 Some recent_cpu values were missing or differed from those expected by more than 2.5.
   time   actual <-> expected explanation
@@ -91,3 +92,6 @@ Some recent_cpu values were missing or differed from those expected by more than
    174     0.00 <<< 188.91   Too small, by 186.41.
    176     0.00 <<< 189.27   Too small, by 186.77.
    178     0.00 <<< 189.63   Too small, by 187.13.
+=======
+PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FAIL
 Test output failed to match any acceptable form.
 
@@ -17,3 +18,6 @@ Differences in `diff -u' format:
 - (priority-change) Thread 2 exiting.
   (priority-change) Thread 2 should have just exited.
   (priority-change) end
+=======
+PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
