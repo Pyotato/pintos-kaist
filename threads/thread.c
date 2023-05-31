@@ -94,8 +94,9 @@ static tid_t allocate_tid(void);
  */
 
 #define Q 14
-#define F (1 << Q)
+#define F (1 << Q) /*fixed point 1*/
 
+/*Convert n to fixed point:*/
 int int_to_float(int n)
 {
 	return n * F;
@@ -108,22 +109,22 @@ int float_to_int(int x)
 	else
 		return (x - (F / 2)) / F;
 }
-
+/*Add x and y*/
 int add_x_n(int x, int n)
 {
 	return x + n * F;
 }
-
+/*Subtract n from x*/
 int sub_n_x(int x, int n)
 {
 	return x - n * F;
 }
-
+/*Multiply x by y*/
 int mul_x_y(int x, int y)
 {
 	return ((int64_t)x) * y / F;
 }
-
+/*Divide x by y*/
 int div_x_y(int x, int y)
 {
 	return ((int64_t)x) * F / y;
@@ -135,12 +136,12 @@ int div_x_y(int x, int y)
 Inserting thread in order by larger priority values.
 
 /*================================================== calcutations ==================================================*/
+/* tick이 적은 순대로 오름차순 정렬, thread_sleep에서 가장 tick작은 값부터 */
+bool order_by_least_wakeup_tick(const struct list_elem *a, const struct list_elem *b,
+								void *aux UNUSED);
 
-// bool wakeup_tick_less_function(const struct list_elem *a, const struct list_elem *b,
-// 							   void *aux UNUSED);
-
-// bool priority_greatest_function(const struct list_elem *a, const struct list_elem *b,
-// 								void *aux UNUSED);
+bool priority_greatest_function(const struct list_elem *a, const struct list_elem *b,
+								void *aux UNUSED);
 
 /* Returns true if T appears to point to a valid thread. */
 #define is_thread(t) ((t) != NULL && (t)->magic == THREAD_MAGIC)
@@ -214,15 +215,15 @@ void thread_init(void)
 void thread_start(void)
 {
 	/* Create the idle thread. */
-	struct semaphore idle_started;
-	sema_init(&idle_started, 0);
-	thread_create("idle", PRI_MIN, idle, &idle_started);
+	struct semaphore idle_t_start;
+	sema_init(&idle_t_start, 0);
+	thread_create("idle", PRI_MIN, idle, &idle_t_start);
 
 	/* Start preemptive thread scheduling. */
 	intr_enable();
 
 	/* Wait for the idle thread to initialize idle_thread. */
-	sema_down(&idle_started);
+	sema_down(&idle_t_start);
 }
 
 /* Called by the timer interrupt handler at each timer tick.
@@ -297,6 +298,9 @@ tid_t thread_create(const char *name, int priority,
 	t->tf.eflags = FLAG_IF;
 
 	/* Add to run queue. */
+	/*Thread의 unblock 후,
+	 현재 실행중인 thread와 우선순위를 비교하여,
+	 새로 생성된 thread의 우선순위가 높다면 thread_yield()를 통해 CPU를 양보.*/
 	thread_unblock(t);
 	/*👀👀 이전 interrupt 활성화/비활성화 상태 가져오기*/
 	enum intr_level old_level;
@@ -459,7 +463,7 @@ void thread_sleep(int64_t ticks)
 		/*Save local tick (store the local tick to wake up)*/
 		curr->wakeup_tick = ticks;
 		/*insert thread in sleep_list in order of tick values (small to big)*/
-		list_insert_ordered(&sleep_list, &curr->elem, wakeup_tick_less_function, NULL);
+		list_insert_ordered(&sleep_list, &curr->elem, order_by_least_wakeup_tick, NULL);
 		do_schedule(THREAD_BLOCKED); /*change the state of the caller thread to BLOCKED*/
 	}
 	intr_set_level(old_level);
@@ -488,7 +492,10 @@ void wakeup_thread(void)
 		sleep_thread->status = THREAD_READY;
 	}
 }
-/*👀👀👀👀👀 실행완료한 thread lock 해제*/
+/*👀 실행완료한 thread lock 해제
+ready_list에 대기 중인 thread가 있다면 앞에서부터 priority
+
+*/
 void thread_release_unlock()
 {
 	/*read_list가 빈 상태가 아니라면 */
@@ -507,18 +514,23 @@ void thread_release_unlock()
  * 현재 thread
  * multi-level feedback queue scheduler 사용하려면 새 priority로 업데이트
  * 아니면 round-robin 사용
+ *
+ *
+ *
  */
 void thread_set_priority(int new_priority)
 {
 	struct thread *t = thread_current();
 
 	if (thread_mlfqs == true)
-	{
+	{ /* mlfqs 스케줄러 일때 우선순위를 임의로 변경할수 없도록. */
+
 		t->priority = new_priority;
 	}
 	else
 	{
-
+		/*스레드 우선순위 변경시 donation의 발생을 확인 하고
+		우선순위 변경을 위해 donation_priority()함수 추가*/
 		if (t->origin_priority == t->priority) /*donate priority 현재와 이전 thread (priority conflict 없애기)*/
 			t->priority = new_priority;
 		t->origin_priority = new_priority;
@@ -556,6 +568,12 @@ int thread_get_priority(void)
 /* 3️⃣ 4BSD LIKE SCHEDULER :  Sets the current thread's nice value to NICE. */
 void thread_set_nice(int nice)
 {
+	/* 현제 스레드의 nice값을 변경하는 함수를 구현하다.
+	해당 작업중에 인터럽트는 비활성화 해야 한다. */
+	/* 현제 스레드의 nice 값을 변경한다.
+	nice 값 변경 후에 현재 스레드의 우선순위를 재계산 하고
+	우선순위에 의해 스케줄링 한다. */
+
 	thread_current()->nice = nice;
 }
 
@@ -568,6 +586,8 @@ int thread_get_nice(void)
 /* Returns 100 times the system load average. */
 int thread_get_load_avg(void)
 {
+	/* load_avg에 100을 곱해서 반환 한다.
+해당 과정중에 인터럽트는 비활성되어야 한다. */
 	return float_to_int(mul_x_y(int_to_float(100), load_avg));
 }
 
@@ -575,6 +595,8 @@ int thread_get_load_avg(void)
 int thread_get_recent_cpu(void)
 {
 	int recent_cpu = thread_current()->recent_cpu;
+	/* recent_cpu 에 100을 곱해서 반환 한다.
+	해당 과정중에 인터럽트는 비활성되어야 한다. */
 
 	return float_to_int(mul_x_y(int_to_float(100), recent_cpu));
 }
@@ -604,6 +626,7 @@ void recent_cpu_cal(struct thread *t, int decay)
 }
 
 // Calculate for every thread
+// mlfqs_priority
 void calculate_recent_cpu(void)
 {
 	struct list_elem *e;
@@ -674,12 +697,12 @@ void recalc_priority(void)
    ready list.  It is returned by next_thread_to_run() as a
    special case when the ready list is empty. */
 static void
-idle(void *idle_started_ UNUSED)
+idle(void *idle_t_start_ UNUSED)
 {
-	struct semaphore *idle_started = idle_started_;
+	struct semaphore *idle_t_start = idle_t_start_;
 
 	idle_thread = thread_current();
-	sema_up(idle_started);
+	sema_up(idle_t_start);
 
 	for (;;)
 	{
@@ -741,7 +764,7 @@ init_thread(struct thread *t, const char *name, int priority)
 	 */
 	t->origin_priority = t->priority;
 	list_init(&t->donations);
-
+	/*스케줄러 관련상수 정의, 변수 선언 및 초기화*/
 	t->nice = 0;
 	t->recent_cpu = 0;
 }
@@ -937,8 +960,8 @@ allocate_tid(void)
 
 /* list_less_function for ready_list_insert_ordered.
 Inserting thread in order by small ticks values. */
-bool wakeup_tick_less_function(const struct list_elem *a, const struct list_elem *b,
-							   void *aux UNUSED)
+bool order_by_least_wakeup_tick(const struct list_elem *a, const struct list_elem *b,
+								void *aux UNUSED)
 {
 	struct thread *thread_a = list_entry(a, struct thread, elem);
 	struct thread *thread_b = list_entry(b, struct thread, elem);
