@@ -298,6 +298,7 @@ void lock_release(struct lock *lock)
 			/* priority를 다시 계산 함수를 호출
 				lock holder의 priority 무조건 최대로하기
 			*/
+			/*multiple donation*/
 			donor_priority = find_max_priority(&lock->holder->donations);
 			if (donor_priority > holder_priority) /*lock들고 있는 thread의 priority가 크다면 그값을 갖고 아니면 donate 전 값이 높다면 그 값으로 */
 				lock->holder->priority = donor_priority;

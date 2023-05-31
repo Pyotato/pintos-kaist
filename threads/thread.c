@@ -446,7 +446,14 @@ void thread_yield(void)
 	do_schedule(THREAD_READY); /*call schedule()*/
 	intr_set_level(old_level);
 }
-/*👀👀👀👀👀 쓰레드 sleep_list에 넣기*/
+/*👀👀👀👀👀 쓰레드 sleep_list에 넣기
+
+timer_sleep() 호출시 thread를 ready_list에서 제거, sleep queue에
+추가
+ wake up 수행
+ timer interrupt가 발생시 tick 체크
+ 시간이 다 된 thread는 sleep queue에서 삭제하고, ready_list에 추가
+*/
 void thread_sleep(int64_t ticks)
 {
 	struct thread *curr = thread_current();

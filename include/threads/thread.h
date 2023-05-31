@@ -92,7 +92,7 @@ struct thread
 	enum thread_status status; /* Thread state. */
 	char name[16];			   /* Name (for debugging purposes). */
 	int priority;			   /* Priority. */
-	int64_t wakeup_tick;	   /* tick till wake up. */
+	int64_t wakeup_tick;	   /* tick till wake up. 해당 쓰레드가 깨어나야 할 tick을 저장할 필드 */
 
 	/* For advanced scheduler */
 	int nice; /* Niceness of the thread*/
@@ -115,7 +115,7 @@ struct thread
     * multiple donation을 고려하기 위한 리스트 추가
 
 	*/
-	struct list donations;	   /*multiple donation을 고려하기 위한 리스트 추가*/
+	struct list donations;	   /*multiple donation을 고려하기 위한 리스트 추가 (priority들을 담을 리스트)*/
 	struct list_elem d_elem;   /*해당 리스트를 위한 elem도 추가*/
 	struct lock *wait_on_lock; /*해당 쓰레드가 대기하고 있는 lock자료구조의 주소를 저장할 필드*/
 	int origin_priority;	   /*이전의 priority, Multiple donation:스레드가 두 개 이상의 lock 보유 시, 각 lock에 의해 도네이션이 발생가

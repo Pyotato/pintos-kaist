@@ -136,9 +136,9 @@ timer_interrupt(struct intr_frame *args UNUSED)
 	if (thread_mlfqs == true)
 	{
 		/*
-		Multi-Level Feedback Queue Scheduler
+		👀 Multi-Level Feedback Queue Scheduler
 		mlfqs 스케줄러일 경우
-		timer_interrupt 가 발생할때 마다 recuent_cpu 1증가,
+		timer_interrupt 가 발생할때 마다 recent_cpu 1증가,
 		1초마다 load_avg, recent_cpu, priority 계산,
 		매 4tick마다 priority 계산 */
 
