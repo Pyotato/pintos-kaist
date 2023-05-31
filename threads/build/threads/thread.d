@@ -7,6 +7,11 @@ threads/thread.o: ../../threads/thread.c ../../include/threads/thread.h \
  ../../include/lib/string.h ../../include/threads/flags.h \
  ../../include/threads/intr-stubs.h ../../include/threads/palloc.h \
  ../../include/threads/synch.h ../../include/threads/vaddr.h \
+<<<<<<< HEAD
+ ../../include/threads/loader.h ../../include/intrinsic.h \
+ ../../include/threads/mmu.h ../../include/threads/pte.h
+=======
  ../../include/threads/loader.h ../../include/threads/fixed_point.h \
  ../../include/intrinsic.h ../../include/threads/mmu.h \
  ../../include/threads/pte.h
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

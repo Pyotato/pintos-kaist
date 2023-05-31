@@ -8,6 +8,8 @@ Calibrating timer...  157,081,600 loops/s.
 Boot complete.
 Executing 'priority-condvar':
 (priority-condvar) begin
+<<<<<<< HEAD
+=======
 (priority-condvar) Thread priority 23 starting.
 (priority-condvar) Thread priority 22 starting.
 (priority-condvar) Thread priority 21 starting.
@@ -18,6 +20,7 @@ Executing 'priority-condvar':
 (priority-condvar) Thread priority 26 starting.
 (priority-condvar) Thread priority 25 starting.
 (priority-condvar) Thread priority 24 starting.
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
 (priority-condvar) Signaling...
 (priority-condvar) Thread priority 30 woke up.
 (priority-condvar) Signaling...
@@ -40,8 +43,20 @@ Executing 'priority-condvar':
 (priority-condvar) Thread priority 21 woke up.
 (priority-condvar) end
 Execution of 'priority-condvar' complete.
+<<<<<<< HEAD
 Timer: 27 ticks
 Thread: 0 idle ticks, 28 kernel ticks, 0 user ticks
 Console: 1707 characters output
+=======
+<<<<<<< HEAD
+Timer: 24 ticks
+Thread: 0 idle ticks, 24 kernel ticks, 0 user ticks
+Console: 757 characters output
+=======
+Timer: 26 ticks
+Thread: 0 idle ticks, 26 kernel ticks, 0 user ticks
+Console: 1237 characters output
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
+>>>>>>> 17b9e9244acceb84ebf9244258d7f3ea4631f226
 Keyboard: 0 keys pressed
 Powering off...

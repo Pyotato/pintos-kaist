@@ -11,6 +11,23 @@ Executing 'mlfqs-nice-10':
 (mlfqs-nice-10) Starting 10 threads...
 (mlfqs-nice-10) Starting threads took 1 ticks.
 (mlfqs-nice-10) Sleeping 40 seconds to let threads run, please wait...
+<<<<<<< HEAD
+(mlfqs-nice-10) Thread 0 received 301 ticks.
+(mlfqs-nice-10) Thread 1 received 300 ticks.
+(mlfqs-nice-10) Thread 2 received 301 ticks.
+(mlfqs-nice-10) Thread 3 received 300 ticks.
+(mlfqs-nice-10) Thread 4 received 301 ticks.
+(mlfqs-nice-10) Thread 5 received 301 ticks.
+(mlfqs-nice-10) Thread 6 received 300 ticks.
+(mlfqs-nice-10) Thread 7 received 300 ticks.
+(mlfqs-nice-10) Thread 8 received 300 ticks.
+(mlfqs-nice-10) Thread 9 received 300 ticks.
+(mlfqs-nice-10) end
+Execution of 'mlfqs-nice-10' complete.
+Timer: 4024 ticks
+Thread: 0 idle ticks, 4024 kernel ticks, 0 user ticks
+Console: 1040 characters output
+=======
 (mlfqs-nice-10) Thread 0 received 688 ticks.
 (mlfqs-nice-10) Thread 1 received 592 ticks.
 (mlfqs-nice-10) Thread 2 received 497 ticks.
@@ -26,5 +43,6 @@ Execution of 'mlfqs-nice-10' complete.
 Timer: 4024 ticks
 Thread: 1000 idle ticks, 3024 kernel ticks, 0 user ticks
 Console: 1039 characters output
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
 Keyboard: 0 keys pressed
 Powering off...

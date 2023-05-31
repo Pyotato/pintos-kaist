@@ -1,1 +1,10 @@
+<<<<<<< HEAD
+FAIL
+Some tick counts were missing or differed from those expected by more than 50.
+thread   actual <-> expected explanation
+------ -------- --- -------- ----------------------------------------
+     0     1501 <<< 1904     Too small, by 353.
+     1     1500 >>> 1096     Too big, by 354.
+=======
 PASS
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab

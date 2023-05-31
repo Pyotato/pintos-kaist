@@ -8,6 +8,13 @@ Calibrating timer...  157,081,600 loops/s.
 Boot complete.
 Executing 'priority-donate-multiple2':
 (priority-donate-multiple2) begin
+<<<<<<< HEAD
+(priority-donate-multiple2) Main thread should have priority 34.  Actual priority: 31.
+(priority-donate-multiple2) Main thread should have priority 36.  Actual priority: 31.
+(priority-donate-multiple2) Main thread should have priority 36.  Actual priority: 31.
+(priority-donate-multiple2) Threads b, a, c should have just finished, in that order.
+(priority-donate-multiple2) Main thread should have priority 31.  Actual priority: 31.
+=======
 (priority-donate-multiple2) Main thread should have priority 34.  Actual priority: 34.
 (priority-donate-multiple2) Main thread should have priority 36.  Actual priority: 36.
 (priority-donate-multiple2) Main thread should have priority 36.  Actual priority: 36.
@@ -17,7 +24,12 @@ Executing 'priority-donate-multiple2':
 (priority-donate-multiple2) Thread a finished.
 (priority-donate-multiple2) Thread c finished.
 (priority-donate-multiple2) Threads b, a, c should have just finished, in that order.
+<<<<<<< HEAD
 (priority-donate-multiple2) Main thread should have priority 31.  Actual priority: 31.
+=======
+(priority-donate-multiple2) Main thread should have priority 31.  Actual priority: 36.
+>>>>>>> 6a8471e9ab030a48401624869d46c96a576c81ab
+>>>>>>> 17b9e9244acceb84ebf9244258d7f3ea4631f226
 (priority-donate-multiple2) end
 Execution of 'priority-donate-multiple2' complete.
 Timer: 25 ticks
