@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "interrupt.h": "c",
+    "thread.h": "c",
+    "process.h": "c",
+    "fixed_point.h": "c",
+    "intrinsic.h": "c",
+    "intr-stubs.h": "c",
+    "vaddr.h": "c"
+  }
+}
