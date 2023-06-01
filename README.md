@@ -4,47 +4,112 @@ The manual is available at https://casys-kaist.github.io/pintos-kaist/.
 
 # PROJECT1
 
-- Topic : Threads
-- Commencement : 05/26
-- Dued : 06/01
+- Topic : User Program
+- Commencement : 06/02
+- Dued : 06/11
 
 # Parts
 
-## task 1 : Alarm
+- [] args-none
+- [] args-single
+- [] args-multiple
+- [] args-many
+- [] args-dbl-space
+- [] halt
+- [] exit
+- [] create-normal
+- [] create-empty
+- [] create-null
+- [] create-bad-ptr
+- [] create-long
+- [] create-exists
+- [] create-bound
+- [] open-normal
+- [] open-missing
+- [] open-boundary
+- [] open-empty
+- [] open-null
+- [] open-bad-ptr
+- [] open-twice
+- [] close-normal
+- [] close-twice
+- [] close-bad-fd
+- [] read-normal
+- [] read-bad-ptr
+- [] read-boundary
+- [] read-zero
+- [] read-stdout
+- [] read-bad-fd
+- [] write-normal
+- [] write-bad-ptr
+- [] write-boundary
+- [] write-zero
+- [] write-stdin
+- [] write-bad-fd
+- [] fork-once
+- [] fork-multiple
+- [] fork-recursive
+- [] fork-read
+- [] fork-close
+- [] fork-boundary
+- [] exec-once
+- [] exec-arg
+- [] exec-boundary
+- [] exec-missing
+- [] exec-bad-ptr
+- [] exec-read
+- [] wait-simple
+- [] wait-twice
+- [] wait-killed
+- [] wait-bad-pid
+- [] multi-recurse
+- [] multi-child-fd
+- [] rox-simple
+- [] rox-child
+- [] rox-multichild
+- [] bad-read
+- [] bad-write
+- [] bad-read2
+- [] bad-write2
+- [] bad-jump
+- [] bad-jump2
+- [] lg-create
+- [] lg-full
+- [] lg-random
+- [] lg-seq-block
+- [] lg-seq-random
+- [] sm-create
+- [] sm-full
+- [] sm-random
+- [] sm-seq-block
+- [] sm-seq-random
+- [] syn-remove
+- [] syn-write
+- [] multi-oom
 
-alarm-single
-alarm-multiple
-alarm-simultaneous
-alarm-priority
-alarm-zero
-alarm-negative
+- ~~lastweek's?~~
+- [] alarm-single
+- [] alarm-multiple
+- [] alarm-simultaneous
+- [] alarm-priority
+- [] alarm-zero
+- [] alarm-negative
+- [] priority-change
+- [] priority-donate-one
+- [] priority-donate-multiple
+- [] priority-donate-multiple2
+- [] priority-donate-nest
+- [] priority-donate-sema
+- [] priority-donate-lower
+- [] priority-fifo
+- [] priority-preempt
+- [] priority-sema
+- [] priority-condvar
+- [] priority-donate-chain
+- [] dup2-complex (extra)
+- [] dup2-simple (extra)
 
-## task 2 : priority scheduling
-
-priority-change
-priority-donate-one
-priority-donate-multiple
-priority-donate-multiple2
-priority-donate-nest
-priority-donate-sema
-priority-donate-lower
-priority-fifo
-priority-preempt
-priority-sema
-priority-condvar (Extra)
-priority-donate-chain
-
-## task 3 (extra) : Multi level feeback queue scheduling
-
-mlfqs-load-1 (Extra)
-mlfqs-load-60 (Extra)
-mlfqs-load-avg (Extra)
-mlfqs-recent-1 (Extra)
-mlfqs-fair-2 (Extra)
-mlfqs-fair-20 (Extra)
-mlfqs-block (Extra)
-mlfqs-nice-2 (Extra)
-mlfqs-nice-10 (Extra)
+## task
 
 ---
 
