@@ -2,7 +2,7 @@ Brand new pintos for Operating Systems and Lab (CS330), KAIST, by Youngjin Kwon.
 
 The manual is available at https://casys-kaist.github.io/pintos-kaist/.
 
-# PROJECT1
+# PROJECT2
 
 - Topic : User Program
 - Commencement : 06/02
@@ -10,104 +10,104 @@ The manual is available at https://casys-kaist.github.io/pintos-kaist/.
 
 # Parts
 
-- [] args-none
-- [] args-single
-- [] args-multiple
-- [] args-many
-- [] args-dbl-space
-- [] halt
-- [] exit
-- [] create-normal
-- [] create-empty
-- [] create-null
-- [] create-bad-ptr
-- [] create-long
-- [] create-exists
-- [] create-bound
-- [] open-normal
-- [] open-missing
-- [] open-boundary
-- [] open-empty
-- [] open-null
-- [] open-bad-ptr
-- [] open-twice
-- [] close-normal
-- [] close-twice
-- [] close-bad-fd
-- [] read-normal
-- [] read-bad-ptr
-- [] read-boundary
-- [] read-zero
-- [] read-stdout
-- [] read-bad-fd
-- [] write-normal
-- [] write-bad-ptr
-- [] write-boundary
-- [] write-zero
-- [] write-stdin
-- [] write-bad-fd
-- [] fork-once
-- [] fork-multiple
-- [] fork-recursive
-- [] fork-read
-- [] fork-close
-- [] fork-boundary
-- [] exec-once
-- [] exec-arg
-- [] exec-boundary
-- [] exec-missing
-- [] exec-bad-ptr
-- [] exec-read
-- [] wait-simple
-- [] wait-twice
-- [] wait-killed
-- [] wait-bad-pid
-- [] multi-recurse
-- [] multi-child-fd
-- [] rox-simple
-- [] rox-child
-- [] rox-multichild
-- [] bad-read
-- [] bad-write
-- [] bad-read2
-- [] bad-write2
-- [] bad-jump
-- [] bad-jump2
-- [] lg-create
-- [] lg-full
-- [] lg-random
-- [] lg-seq-block
-- [] lg-seq-random
-- [] sm-create
-- [] sm-full
-- [] sm-random
-- [] sm-seq-block
-- [] sm-seq-random
-- [] syn-remove
-- [] syn-write
-- [] multi-oom
+- [ ] args-none
+- [ ] args-single
+- [ ] args-multiple
+- [ ] args-many
+- [ ] args-dbl-space
+- [ ] halt
+- [ ] exit
+- [ ] create-normal
+- [ ] create-empty
+- [ ] create-null
+- [ ] create-bad-ptr
+- [ ] create-long
+- [ ] create-exists
+- [ ] create-bound
+- [ ] open-normal
+- [ ] open-missing
+- [ ] open-boundary
+- [ ] open-empty
+- [ ] open-null
+- [ ] open-bad-ptr
+- [ ] open-twice
+- [ ] close-normal
+- [ ] close-twice
+- [ ] close-bad-fd
+- [ ] read-normal
+- [ ] read-bad-ptr
+- [ ] read-boundary
+- [ ] read-zero
+- [ ] read-stdout
+- [ ] read-bad-fd
+- [ ] write-normal
+- [ ] write-bad-ptr
+- [ ] write-boundary
+- [ ] write-zero
+- [ ] write-stdin
+- [ ] write-bad-fd
+- [ ] fork-once
+- [ ] fork-multiple
+- [ ] fork-recursive
+- [ ] fork-read
+- [ ] fork-close
+- [ ] fork-boundary
+- [ ] exec-once
+- [ ] exec-arg
+- [ ] exec-boundary
+- [ ] exec-missing
+- [ ] exec-bad-ptr
+- [ ] exec-read
+- [ ] wait-simple
+- [ ] wait-twice
+- [ ] wait-killed
+- [ ] wait-bad-pid
+- [ ] multi-recurse
+- [ ] multi-child-fd
+- [ ] rox-simple
+- [ ] rox-child
+- [ ] rox-multichild
+- [ ] bad-read
+- [ ] bad-write
+- [ ] bad-read2
+- [ ] bad-write2
+- [ ] bad-jump
+- [ ] bad-jump2
+- [ ] lg-create
+- [ ] lg-full
+- [ ] lg-random
+- [ ] lg-seq-block
+- [ ] lg-seq-random
+- [ ] sm-create
+- [ ] sm-full
+- [ ] sm-random
+- [ ] sm-seq-block
+- [ ] sm-seq-random
+- [ ] syn-remove
+- [ ] syn-write
+- [ ] multi-oom
 
 - ~~lastweek's?~~
-- [] alarm-single
-- [] alarm-multiple
-- [] alarm-simultaneous
-- [] alarm-priority
-- [] alarm-zero
-- [] alarm-negative
-- [] priority-change
-- [] priority-donate-one
-- [] priority-donate-multiple
-- [] priority-donate-multiple2
-- [] priority-donate-nest
-- [] priority-donate-sema
-- [] priority-donate-lower
-- [] priority-fifo
-- [] priority-preempt
-- [] priority-sema
-- [] priority-condvar
-- [] priority-donate-chain
-- [] dup2-complex (extra)
-- [] dup2-simple (extra)
+- [ ] alarm-single
+- [ ] alarm-multiple
+- [ ] alarm-simultaneous
+- [ ] alarm-priority
+- [ ] alarm-zero
+- [ ] alarm-negative
+- [ ] priority-change
+- [ ] priority-donate-one
+- [ ] priority-donate-multiple
+- [ ] priority-donate-multiple2
+- [ ] priority-donate-nest
+- [ ] priority-donate-sema
+- [ ] priority-donate-lower
+- [ ] priority-fifo
+- [ ] priority-preempt
+- [ ] priority-sema
+- [ ] priority-condvar
+- [ ] priority-donate-chain
+- [ ] dup2-complex (extra)
+- [ ] dup2-simple (extra)
 
 ## task
 
