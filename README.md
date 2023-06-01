@@ -8,6 +8,44 @@ The manual is available at https://casys-kaist.github.io/pintos-kaist/.
 - Commencement : 05/26
 - Dued : 06/01
 
+# Parts
+
+## task 1 : Alarm
+
+alarm-single
+alarm-multiple
+alarm-simultaneous
+alarm-priority
+alarm-zero
+alarm-negative
+
+## task 2 : priority scheduling
+
+priority-change
+priority-donate-one
+priority-donate-multiple
+priority-donate-multiple2
+priority-donate-nest
+priority-donate-sema
+priority-donate-lower
+priority-fifo
+priority-preempt
+priority-sema
+priority-condvar (Extra)
+priority-donate-chain
+
+## task 3 (extra) : Multi level feeback queue scheduling
+
+mlfqs-load-1 (Extra)
+mlfqs-load-60 (Extra)
+mlfqs-load-avg (Extra)
+mlfqs-recent-1 (Extra)
+mlfqs-fair-2 (Extra)
+mlfqs-fair-20 (Extra)
+mlfqs-block (Extra)
+mlfqs-nice-2 (Extra)
+mlfqs-nice-10 (Extra)
+
 ---
 
 # RESULTS
