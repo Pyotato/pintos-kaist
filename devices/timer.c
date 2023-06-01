@@ -144,14 +144,17 @@ timer_interrupt(struct intr_frame *args UNUSED)
 
 		// Calculate running thread only
 		// 1*2^14만큼 shift
+		/*timer_interrupt 가 발생할때 마다 recuent_cpu 1증가*/
 		thread_current()->recent_cpu += (1 << 14);
 		// Calculate for all thread
 		// ticks가 Number of timer interrupts per second로 나누어 떨어지면
 		if (ticks % TIMER_FREQ == 0)
-		{
+
+		{ /*1초마다 load_avg, recent_cpu, priority 계산*/
 			calculate_load_avg();
 			calculate_recent_cpu();
 		}
+		/*매 4tick마다 priority 계산 */
 		if (ticks % 4 == 0)
 		{
 			recalc_priority();

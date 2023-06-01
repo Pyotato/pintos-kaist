@@ -80,7 +80,8 @@ void sema_down(struct semaphore *sema)
 		  (Semaphore를 얻고 waiters 리스트 삽입 시, 우선순위대로 삽입되도록 수정)
 	  */
 		// list_push_back(&sema->waiters, &thread_current()->elem);
-		list_insert_ordered(&sema->waiters, &thread_current()->elem, priority_greatest_function, NULL);
+		// list_insert_ordered(&sema->waiters, &thread_current()->elem, priority_greatest_function, NULL);
+		list_insert_ordered(&sema->waiters, &thread_current()->elem, priority_greatest_sema, NULL);
 		thread_block();
 	}
 	sema->value--;
@@ -126,7 +127,7 @@ void sema_up(struct semaphore *sema)
 	/*priority 높은 순으로 정렬
 	 1️⃣waiter list에 있는 쓰레드의 우선순위가 변경 되었을 경우를 고려하
 		여 	waiter list를 정렬 (list_sort)
- 		세마포어 해제 후 priority preemption 기능 추가
+ 	 2️⃣세마포어 해제 후 priority preemption 기능 추가
 
 	*/
 	list_sort(&sema->waiters, priority_greatest_function, NULL); /*1️⃣*/
@@ -135,7 +136,7 @@ void sema_up(struct semaphore *sema)
 								  struct thread, elem));
 	sema->value++;
 	intr_set_level(old_level);
-	thread_release_unlock(); /*2️⃣*/
+	thread_release_unlock(); /*2️⃣ */
 }
 
 static void sema_test_helper(void *sema_);
@@ -197,19 +198,20 @@ void lock_init(struct lock *lock)
 	sema_init(&lock->semaphore, 1);
 }
 
-/*2️⃣ nested donation*/
+/*2️⃣ nested donation
+lock을 갖고 있는 쓰레드보다 현재 thread priority가 높다면 대기중인 모든 쓰레드들의 priority를 현재 꺼로 올려줘야함
+재귀적으로 lock wait하고 있는 thread들의 우선 순위 높여주기
+*/
 void nested_donation(struct lock *lock, int priority)
 {
 	struct thread *holder = lock->holder;
+	/*lock holder가 있다면 */
 	if (holder != NULL)
-	{
-		if (holder != NULL)
-		{
-			if (holder->priority < priority)
-				holder->priority = priority;
-			if (holder->wait_on_lock != NULL)
-				return nested_donation(holder->wait_on_lock, priority);
-		}
+	{ /*lock을 갖고 있는 thread의 priority가 lock aquire하려는 thread보다 낮다면 lock aquire하려는 thread의 priority 갖도록*/
+		if (holder->priority < priority)
+			holder->priority = priority;
+		if (holder->wait_on_lock != NULL)
+			return nested_donation(holder->wait_on_lock, priority);
 	}
 }
 
@@ -233,10 +235,14 @@ void lock_acquire(struct lock *lock)
 	if (thread_mlfqs == false)
 	{ /* lock을 갖고 있는 thread가 있다면 */
 		if (lock->holder != NULL)
-		{ /**/
-			thread_current()->wait_on_lock = lock;
-			if (lock->holder->priority < curr_priority)
-				nested_donation(lock, curr_priority);
+		{												/*
+													  lock을 점유하고 있는 스레드와 요청 하는 스레드의 우선순위를 비교하여
+													  priority donation을 수행하도록 수정
+													  */
+			thread_current()->wait_on_lock = lock;		/*wait을 하게 될 lock 자료구조 포인터 저장:현재 쓰레드가 요청히고 있는 lock*/
+			if (lock->holder->priority < curr_priority) /*현재 쓰레드의 우선순위가 lock을 보유한 thread보다 우선순위가 높다 ? priority inversion 해결하기!*/
+				nested_donation(lock, curr_priority);	/*가장 높은 우선 순위를 wait 중인 thread들한테 주기*/
+			/*donation*/
 			list_push_back(&lock->holder->donations, &thread_current()->d_elem);
 		}
 	}
@@ -281,22 +287,27 @@ void lock_release(struct lock *lock)
 		int holder_priority;
 		int donor_priority;
 		holder_priority = lock->holder->origin_priority;
+		/* donation list 에서 스레드를 제거하고
+		우선순위를 다시 계산하도록 remove_with_lock():donation list에서 스레드 엔트리를 제거 *
+		, refresh_priority():우선순위를 다시 계산 함수를 호출 */
+
 		if (!list_empty(&lock->holder->donations))
 		{
+			/*donation list에서 스레드 엔트리를 제거*/
 			remove_released_thread(lock);
 			/* priority를 다시 계산 함수를 호출
 				lock holder의 priority 무조건 최대로하기
 			*/
 			/*multiple donation*/
 			donor_priority = find_max_priority(&lock->holder->donations);
-			donor_priority > holder_priority ? lock->holder->priority = donor_priority : holder_priority;
-			// if(donor_priority > holder_priority)
-			// 	lock->holder->priority = donor_priority;
-			// else
-			// 	lock->holder->priority = holder_priority;
+			if (donor_priority > holder_priority) /*lock들고 있는 thread의 priority가 크다면 그값을 갖고 아니면 donate 전 값이 높다면 그 값으로 */
+				lock->holder->priority = donor_priority;
+			else
+				lock->holder->priority = holder_priority;
 		}
+		/*lock 대기 중인 thread 있음*/
 		if (lock->holder->wait_on_lock != NULL)
-		{
+		{ /*thread priority 물려주기*/
 			nested_donation(lock->holder->wait_on_lock, lock->holder->priority);
 		}
 	}
@@ -308,6 +319,7 @@ void lock_release(struct lock *lock)
 void remove_released_thread(struct lock *lock)
 {
 	struct list_elem *e;
+
 	struct list *list = &lock->holder->donations;
 
 	for (e = list_begin(list); e != list_end(list); e = list_next(e))
@@ -325,6 +337,7 @@ int find_max_priority(struct list *list)
 {
 	struct list_elem *elem;
 	int max = 0;
+	/*리스트 순회하면서 d_element 값이 크면 겂을 max로 */
 	for (elem = list_begin(list); elem != list_end(list); elem = list_next(elem))
 	{
 		struct thread *t = list_entry(elem, struct thread, d_elem);
@@ -366,17 +379,25 @@ void cond_init(struct condition *cond)
    some other piece of code.  After COND is signaled, LOCK is
    reacquired before returning.  LOCK must be held before calling
    this function.
+   👀 원자적으로 (원자가 작은 단위라서 더이상 쪼개지지 않는 거처럼)
+   lock이 release 되고 다른 cond signal을 대기했다가 signal (wake)이 오면
+   lock은 return 전에 reacquire됨
+   🔥 lock 은 반드시 release & reaqcuoire 해야함!
 
    The monitor implemented by this function is "Mesa" style, not
    "Hoare" style, that is, sending and receiving a signal are not
    an atomic operation.  Thus, typically the caller must recheck
    the condition after the wait completes and, if necessary, wait
    again.
+   🔥 여기서 구현된 monitor 스타일은 signal들을 주고 받는 연산들이
+   원자적이지 않음! 따라서 wait을 마칠 때마다 condition을 재확인해줘야함
 
    A given condition variable is associated with only a single
    lock, but one lock may be associated with any number of
    condition variables.  That is, there is a one-to-many mapping
    from locks to condition variables.
+   🔥 condition variable은 lock과 多:1 관계다.
+   lock은 여러개의 condition variable이 있을 수 있다.
 
    This function may sleep, so it must not be called within an
    interrupt handler.  This function may be called with
@@ -397,10 +418,15 @@ void cond_wait(struct condition *cond, struct lock *lock)
 	condition variable의 waiters list에 우선순위 순서로 삽입되도록 수정
 	*/
 	waiter.priority = thread_get_priority();
+	/* wait 중인 thread 리스트 priority 순서대로 정렬*/
 	list_insert_ordered(&cond->waiters, &waiter.elem, priority_greatest_sema, NULL);
-	// list_push_back(&cond->waiters, &waiter.elem);
+	/*signal을 전송받기 위해서 일단 lock release*/
 	lock_release(lock);
+	/*condition variable의 waiters list를 우선순위로 재정렬
+ 	대기 중에 우선순위가 변경되었을 가능성이 있음으로
+	wait하고 있는 세마포어들 priority 순서대로 정렬하고 다운*/
 	sema_down(&waiter.semaphore);
+	/*다시 lock*/
 	lock_acquire(lock);
 }
 
@@ -417,10 +443,11 @@ void cond_signal(struct condition *cond, struct lock *lock UNUSED)
 	ASSERT(lock != NULL);
 	ASSERT(!intr_context());
 	ASSERT(lock_held_by_current_thread(lock));
-
-	/*condition variable의 waiters list를 우선순위로 재 정렬
- 대기 중에 우선순위가 변경되었을 가능성이 있음*/
+	/*cond list의 wait 중인 쓰레드가 있다면  */
 	if (!list_empty(&cond->waiters))
+		/*
+		condition variable에서 기다리는 가장높은 우선순위의 스레드에 signal을 보냄
+		cond_wait에서 정렬해줬던 우선순위 높은 세마들을 wake해주기*/
 		sema_up(&list_entry(list_pop_front(&cond->waiters),
 							struct semaphore_elem, elem)
 					 ->semaphore);
@@ -436,7 +463,10 @@ void cond_broadcast(struct condition *cond, struct lock *lock)
 {
 	ASSERT(cond != NULL);
 	ASSERT(lock != NULL);
-
+	/*
+	condition variable wait list가 비지 않으면 모든 wait 중인 thread signal해주기
+	condition variable에서 기다리는 모든 스레드에 signal을 보냄
+	*/
 	while (!list_empty(&cond->waiters))
 		cond_signal(cond, lock);
 }
