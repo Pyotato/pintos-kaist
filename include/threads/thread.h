@@ -110,9 +110,9 @@ struct thread
 	/*
 	 * Priority donation 구현
 	 * donation 이후 우선순위를 초기화하기 위해 초기 우선순위 값을 저장할 필드
-    * 해당 리스트를 위한 elem도 추가
     * 해당 쓰레드가 대기하고 있는 lock자료구조의 주소를 저장할 필드
     * multiple donation을 고려하기 위한 리스트 추가
+    * 해당 리스트를 위한 elem도 추가
 
 	*/
 	struct list donations;	   /*multiple donation을 고려하기 위한 리스트 추가 (priority들을 담을 리스트)*/
@@ -141,17 +141,7 @@ struct thread
 extern bool thread_mlfqs;
 
 extern int64_t global_tick;
-/*
-load_avg = (59/60) * load_avg + (1/60) * ready_threads
- 최근 1분 동안 수행 가능한 프로세스의 평균 개수, exponentially weighted
-moving average 를 사용
- ready_threads : ready_list에 있는 스레드들과 실행 중인 스레드의 개수 (idle
-스레드 제외)
- int thread_get_load_avg(void) 함수 구현
- 현재 system load average의 100배 (rounded to the nearest interget) 를 반환
- timer_ticks() % TIMER_FREQ == 0
 
-*/
 extern int load_avg;
 
 void thread_init(void);
@@ -179,16 +169,16 @@ void thread_set_priority(int);
 
 int thread_get_nice(void);
 void thread_set_nice(int);
-int thread_get_recent_cpu(void); /*mlfqs_recent_cpu*/
-int thread_get_load_avg(void);	 /*mlfqs_load_avg*/
+int thread_get_recent_cpu(void);
+int thread_get_load_avg(void);
 
 void do_iret(struct intr_frame *tf);
 
 void thread_sleep(int64_t ticks);
 void wakeup_thread(void);
 
-bool order_by_least_wakeup_tick(const struct list_elem *a, const struct list_elem *b,
-								void *aux UNUSED);
+bool wakeup_tick_less_function(const struct list_elem *a, const struct list_elem *b,
+							   void *aux UNUSED);
 bool priority_greatest_function(const struct list_elem *a, const struct list_elem *b,
 								void *aux UNUSED);
 
