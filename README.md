@@ -115,7 +115,7 @@ The manual is available at https://casys-kaist.github.io/pintos-kaist/.
 
 # RESULTS
 
-## ![image](https://github.com/Pyotato/pintos-kaist/assets/102423086/3ae6c5c9-9dc1-4851-ab56-147a5a958127)
+'TO BE UPLOADED'
 
 # IMPLEMENTATION REFERENCES
 
