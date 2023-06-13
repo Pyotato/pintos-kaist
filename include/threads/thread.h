@@ -5,6 +5,7 @@
 #include <list.h>
 #include <stdint.h>
 #include "threads/interrupt.h"
+#include "threads/synch.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -28,6 +29,7 @@ typedef int tid_t;
 #define PRI_DEFAULT 31 /* Default priority. */
 #define PRI_MAX 63	   /* Highest priority. */
 
+#define MAX_FDE 128
 /* A kernel thread or user process.
  *
  * Each thread structure is stored in its own 4 kB page.  The
@@ -92,38 +94,42 @@ struct thread
 	enum thread_status status; /* Thread state. */
 	char name[16];			   /* Name (for debugging purposes). */
 	int priority;			   /* Priority. */
-	int64_t wakeup_tick;	   /* tick till wake up. 해당 쓰레드가 깨어나야 할 tick을 저장할 필드 */
-
+	int64_t wakeup_tick;	   /* tick till wake up. */
 	/* For advanced scheduler */
-	int nice; /* Niceness of the thread*/
-	/*
-	  최근에 얼마나 많은 CPU time을 사용했는가를 표현
-	 init 스레드의 초기 값은 ‘0’, 다른 스레드들은 부모의 recent_cpu값
-	 recent_cpu는 timer interrupt마다 1씩 증가, 매 1초 마다 재 계산
-	 int thread_get_recent_cpu(void) 함수 구현
-	 스레드의 현재 recent_cpu의 100배 (rounded to the nearest interget) 를 반환
-	*/
+	int nice;
 	int recent_cpu;
 
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem; /* List element. */
-	/*
-	 * Priority donation 구현
-	 * donation 이후 우선순위를 초기화하기 위해 초기 우선순위 값을 저장할 필드
-    * 해당 리스트를 위한 elem도 추가
-    * 해당 쓰레드가 대기하고 있는 lock자료구조의 주소를 저장할 필드
-    * multiple donation을 고려하기 위한 리스트 추가
-
-	*/
-	struct list donations;	   /*multiple donation을 고려하기 위한 리스트 추가 (priority들을 담을 리스트)*/
-	struct list_elem d_elem;   /*해당 리스트를 위한 elem도 추가*/
-	struct lock *wait_on_lock; /*해당 쓰레드가 대기하고 있는 lock자료구조의 주소를 저장할 필드*/
-	int origin_priority;	   /*이전의 priority, Multiple donation:스레드가 두 개 이상의 lock 보유 시, 각 lock에 의해 도네이션이 발생가
-능  이전 상태의 우선순위를 기억하고 있어야 함*/
+	struct list donations; /* For multiple donation */
+	struct list_elem d_elem;
+	struct lock *wait_on_lock; /* For nested donation */
+	int origin_priority;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4; /* Page map level 4 */
+
+	int exit_status; /* For sys_exit, it indicate error*/
+	bool is_exit;	 /* For sys_wait, change by sys_exit */
+	/* Use if thread is child */
+	struct list_elem c_elem;
+	struct thread *parent;
+	/* Use if thread is parent */
+	struct list children;
+	struct list_elem child_head;
+	struct list_elem child_tail;
+	/* Use for process_wait() */
+	struct semaphore wait_sema;
+	struct semaphore exit_sema;
+	/* For wait */
+	bool is_wait;
+
+	/* For File Manipulation */
+	struct file **fdt;
+	int next_fd;
+	bool fd_exist[MAX_FDE];
+
 #endif
 #ifdef VM
 	/* Table for whole virtual memory owned by thread. */
@@ -141,17 +147,7 @@ struct thread
 extern bool thread_mlfqs;
 
 extern int64_t global_tick;
-/*
-load_avg = (59/60) * load_avg + (1/60) * ready_threads
- 최근 1분 동안 수행 가능한 프로세스의 평균 개수, exponentially weighted
-moving average 를 사용
- ready_threads : ready_list에 있는 스레드들과 실행 중인 스레드의 개수 (idle
-스레드 제외)
- int thread_get_load_avg(void) 함수 구현
- 현재 system load average의 100배 (rounded to the nearest interget) 를 반환
- timer_ticks() % TIMER_FREQ == 0
 
-*/
 extern int load_avg;
 
 void thread_init(void);
@@ -179,8 +175,8 @@ void thread_set_priority(int);
 
 int thread_get_nice(void);
 void thread_set_nice(int);
-int thread_get_recent_cpu(void); /*mlfqs_recent_cpu*/
-int thread_get_load_avg(void);	 /*mlfqs_load_avg*/
+int thread_get_recent_cpu(void);
+int thread_get_load_avg(void);
 
 void do_iret(struct intr_frame *tf);
 
@@ -195,5 +191,8 @@ bool priority_greatest_function(const struct list_elem *a, const struct list_ele
 void calculate_load_avg(void);
 void calculate_recent_cpu(void);
 void recalc_priority(void);
+
+/*project2*/
+struct thread *find_thread(tid_t tid);
 
 #endif /* threads/thread.h */

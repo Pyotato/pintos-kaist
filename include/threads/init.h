@@ -15,6 +15,10 @@ extern uint64_t *base_pml4;
 /* -q: Power off when kernel tasks complete? */
 extern bool power_off_when_done;
 
+/*terminates pintos
+use seldomly, cos u might lose info on
+possible deadlock situations etc
+*/
 void power_off(void) NO_RETURN;
 
 #endif /* threads/init.h */

@@ -30,6 +30,29 @@ bool lock_try_acquire(struct lock *);
 void lock_release(struct lock *);
 bool lock_held_by_current_thread(const struct lock *);
 
+/* Condition variable. */
+struct condition
+{
+	struct list waiters; /* List of waiting threads. */
+};
+
+void cond_init(struct condition *);
+void cond_wait(struct condition *, struct lock *);
+void cond_signal(struct condition *, struct lock *);
+void cond_broadcast(struct condition *, struct lock *);
+
+/* Optimization barrier.
+ *
+ * The compiler will not reorder operations across an
+ * optimization barrier.  See "Optimization Barriers" in the
+ * reference guide for more information.*/
+#define barrier() asm volatile("" \
+							   :  \
+							   :  \
+							   : "memory")
+
+#endif /* threads/synch.h */
+
 /* Condition variable. (conditional wait variables)
 
 * 👀 condition variable ? (Conditional Wait variable)
@@ -59,26 +82,4 @@ is_done = 1; 		//change is_done to true					| if(!is_done) //check to see if wor
 
 *
 
-
 */
-struct condition
-{
-	struct list waiters; /* List of waiting threads. */
-};
-
-void cond_init(struct condition *);
-void cond_wait(struct condition *, struct lock *);
-void cond_signal(struct condition *, struct lock *);
-void cond_broadcast(struct condition *, struct lock *);
-
-/* Optimization barrier.
- *
- * The compiler will not reorder operations across an
- * optimization barrier.  See "Optimization Barriers" in the
- * reference guide for more information.*/
-#define barrier() asm volatile("" \
-							   :  \
-							   :  \
-							   : "memory")
-
-#endif /* threads/synch.h */

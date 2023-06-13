@@ -4,16 +4,20 @@
 #include <random.h>
 #include <stdio.h>
 #include <string.h>
+#include "filesys/file.h"
+#include "lib/kernel/list.h"
 #include "threads/flags.h"
 #include "threads/interrupt.h"
 #include "threads/intr-stubs.h"
 #include "threads/palloc.h"
+#include "threads/malloc.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 #include "threads/fixed_point.h"
 #include "intrinsic.h"
 #ifdef USERPROG
 #include "userprog/process.h"
+#include "userprog/syscall.h"
 #endif
 
 #define IDLE_TID 2
@@ -78,6 +82,20 @@ static void init_thread(struct thread *, const char *name, int priority);
 static void do_schedule(int status);
 static void schedule(void);
 static tid_t allocate_tid(void);
+/*🧑‍💻project2*/
+static void close_all_file(struct thread *);
+/**
+ * 2️⃣3️⃣
+ * list_less_function for ready_list_insert_ordered.
+Inserting thread in order by larger priority values.
+*/
+/* tick이 적은 순대로 오름차순 정렬, thread_sleep에서 가장 tick작은 값부터 */
+// bool order_by_least_wakeup_tick(const struct list_elem *a, const struct list_elem *b,
+// 								void *aux UNUSED);
+
+// bool priority_greatest_function(const struct list_elem *a, const struct list_elem *b,
+// 								void *aux UNUSED);
+
 /**
  * 3️⃣ 4BSD LIKE SCHEDULER (Multi-Level Feedback Queue Scheduler)
  * 👀 recent_cpu와 nice 사용해서 priority 계산하는 함수들
@@ -109,39 +127,8 @@ int float_to_int(int x)
 	else
 		return (x - (F / 2)) / F;
 }
-/*Add x and y*/
-int add_x_n(int x, int n)
-{
-	return x + n * F;
-}
-/*Subtract n from x*/
-int sub_n_x(int x, int n)
-{
-	return x - n * F;
-}
-/*Multiply x by y*/
-int mul_x_y(int x, int y)
-{
-	return ((int64_t)x) * y / F;
-}
-/*Divide x by y*/
-int div_x_y(int x, int y)
-{
-	return ((int64_t)x) * F / y;
-}
-
-/**
- * 2️⃣3️⃣
- * list_less_function for ready_list_insert_ordered.
-Inserting thread in order by larger priority values.
 
 /*================================================== calcutations ==================================================*/
-/* tick이 적은 순대로 오름차순 정렬, thread_sleep에서 가장 tick작은 값부터 */
-bool order_by_least_wakeup_tick(const struct list_elem *a, const struct list_elem *b,
-								void *aux UNUSED);
-
-bool priority_greatest_function(const struct list_elem *a, const struct list_elem *b,
-								void *aux UNUSED);
 
 /* Returns true if T appears to point to a valid thread. */
 #define is_thread(t) ((t) != NULL && (t)->magic == THREAD_MAGIC)
@@ -208,22 +195,24 @@ void thread_init(void)
 	 * 1️⃣ ⏰ ALARM 과제 : Initialise global tick, integer타입의 long long int , 64비트
 	 * https://stackoverflow.com/questions/58710120/whats-the-exact-maximum-value-of-long-long-int-in-c
 	 */
-	global_tick = 0x7FFFFFFFFFFFFFFF;
+	/*🪲*/
+	global_tick = 0x7FFFFFFFFFFFFFFF; // 0x7FFFFFFFFFFFFFFF;
+									  //   global_tick = INT64_MAX;
 };
 /* Starts preemptive thread scheduling by enabling interrupts.
    Also creates the idle thread. */
 void thread_start(void)
 {
 	/* Create the idle thread. */
-	struct semaphore idle_t_start;
-	sema_init(&idle_t_start, 0);
-	thread_create("idle", PRI_MIN, idle, &idle_t_start);
+	struct semaphore idle_started;
+	sema_init(&idle_started, 0);
+	thread_create("idle", PRI_MIN, idle, &idle_started);
 
 	/* Start preemptive thread scheduling. */
 	intr_enable();
 
 	/* Wait for the idle thread to initialize idle_thread. */
-	sema_down(&idle_t_start);
+	sema_down(&idle_started);
 }
 
 /* Called by the timer interrupt handler at each timer tick.
@@ -273,6 +262,8 @@ tid_t thread_create(const char *name, int priority,
 					thread_func *function, void *aux)
 {
 	struct thread *t;
+	/*project2*/
+	struct thread *curr;
 	tid_t tid;
 
 	ASSERT(function != NULL);
@@ -285,6 +276,20 @@ tid_t thread_create(const char *name, int priority,
 	/* Initialize thread. */
 	init_thread(t, name, priority);
 	tid = t->tid = allocate_tid();
+
+	/*project2 : process hierarchy*/
+	curr = thread_current();
+	t->parent = curr;
+	list_push_back(&curr->children, &t->c_elem);
+	curr->child_head = *list_head(&curr->children);
+	curr->child_tail = *list_tail(&curr->children);
+
+	/*project2 : file manipulation*/
+	t->fdt = (struct file **)malloc(sizeof(struct file *) * MAX_FDE);
+	if (t->fdt == NULL)
+		sys_exit(-1);
+	/*fd 0,1 is stdin, stdout*/
+	t->next_fd = 2;
 
 	/* Call the kernel_thread if it scheduled.
 	 * Note) rdi is 1st argument, and rsi is 2nd argument. */
@@ -313,7 +318,9 @@ tid_t thread_create(const char *name, int priority,
 	Thread의 unblock 후, 현재 실행중인 thread와 우선순위를 비교하여, 새로 생성된
 	thread의 우선순위가 높다면 thread_yield()를 통해 CPU를 양보.
 	*/
-	if (t->priority > thread_get_priority() && !list_empty(&ready_list))
+	/*🪲fork() 디버깅 중 -> 해결!!.🦗🪲*/
+	if (t->priority >= thread_get_priority() && !list_empty(&ready_list))
+	// if (t->priority > thread_get_priority() && !list_empty(&ready_list))
 	{
 		/* 쓰레드의 ready_list 맨앞 요소의 status가 ready 상태라면 CPU 양도
 		The list_entry macro allows conversion from a
@@ -330,6 +337,13 @@ tid_t thread_create(const char *name, int priority,
 							 */
 	}
 	intr_set_level(old_level);
+
+	/*project2*/
+	if (t->exit_status == -1)
+	{
+		process_wait(tid);
+		return TID_ERROR;
+	}
 
 	return tid;
 }
@@ -415,6 +429,8 @@ void thread_exit(void)
 
 #ifdef USERPROG
 	process_exit();
+	ASSERT(list_empty(&thread_current()->children));
+	ASSERT(list_empty(&thread_current()->donations));
 #endif
 
 	/* Just set our status to dying and schedule another process.
@@ -493,6 +509,8 @@ void wakeup_thread(void)
 							  ->wakeup_tick;
 		else
 			/*sleep_list가 빈 상태라면 글로벌 tick 초기화 ()*/
+			// global_tick = INT64_MAX;
+			/*🪲*/
 			global_tick = 0x7FFFFFFFFFFFFFFF;
 		list_insert_ordered(&ready_list, &sleep_thread->elem,
 							priority_greatest_function, NULL);
@@ -506,7 +524,9 @@ ready_list에 대기 중인 thread가 있다면 앞에서부터 priority
 void thread_release_unlock()
 {
 	/*read_list가 빈 상태가 아니라면 */
-	if (!list_empty(&ready_list))
+	// if (!list_empty(&ready_list))
+	/*project2 : external interrupt 없는 조건 추가*/
+	if (!list_empty(&ready_list) && !intr_context())
 	{ /*ready list 맨앞의 thread의 priority가 현재 */
 		if (list_entry(list_front(&ready_list), struct thread, elem)->priority > thread_get_priority())
 		{
@@ -657,10 +677,6 @@ void calculate_recent_cpu(void)
 	}
 }
 
-//	printf("load_avg : %d\n", float_to_int(load_avg*100));
-//	int decay = div_x_y((load_avg * 2), add_x_n((load_avg * 2), 1));
-//	printf("decay : %d\n", float_to_int(decay*100));
-
 /*2️⃣  priority 연산*/
 void calc_priority(struct thread *t)
 {
@@ -704,12 +720,12 @@ void recalc_priority(void)
    ready list.  It is returned by next_thread_to_run() as a
    special case when the ready list is empty. */
 static void
-idle(void *idle_t_start_ UNUSED)
+idle(void *idle_started_ UNUSED)
 {
-	struct semaphore *idle_t_start = idle_t_start_;
+	struct semaphore *idle_started = idle_started_;
 
 	idle_thread = thread_current();
-	sema_up(idle_t_start);
+	sema_up(idle_started);
 
 	for (;;)
 	{
@@ -742,7 +758,7 @@ kernel_thread(thread_func *function, void *aux)
 {
 	ASSERT(function != NULL);
 
-	intr_enable(); /* The scheduler runs with interrupts off. */
+	intr_enable(); /* The scheduler runs with interrupts on. */
 	function(aux); /* Execute the thread function. */
 	thread_exit(); /* If function() returns, kill the thread. */
 }
@@ -774,6 +790,16 @@ init_thread(struct thread *t, const char *name, int priority)
 	/*스케줄러 관련상수 정의, 변수 선언 및 초기화*/
 	t->nice = 0;
 	t->recent_cpu = 0;
+
+#ifdef USERPROG
+	t->is_exit = false;
+	t->parent = NULL;
+	list_init(&t->children);
+	sema_init(&t->wait_sema, 0);
+	sema_init(&t->exit_sema, 0);
+	t->is_wait = false;
+	memset(t->fd_exist, 0, MAX_FDE);
+#endif
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should
@@ -790,7 +816,14 @@ next_thread_to_run(void)
 		return list_entry(list_pop_front(&ready_list), struct thread, elem);
 }
 
-/* Use iretq to launch the thread */
+/* Use iretq to launch the thread
+ * thread 간 context switch 할때 사용
+ * schedule 함수를 보면 readylist에서 다음 실행할 스레드를 찾아
+ * 이 함수를 thread_launch 함수의 인자로 넣어 호출한다.
+ * thread_launch()에서는 현재 실행중인 스레드의 모든 정보를 현재 스레드의 인터럽트 프레임 구조체 tf에 담고,
+ * 인자로 들어온 next 즉, 새로 실행할 스레드의 인터럽트 프레임 구조체를 인자로 담아 do_iret을 호출
+ * do_iret은 인자로 들어온 인터럽트 프레임내의 정보를 CPU로 복원
+ */
 void do_iret(struct intr_frame *tf)
 {
 	__asm __volatile(
@@ -963,6 +996,28 @@ allocate_tid(void)
 	lock_release(&tid_lock);
 
 	return tid;
+}
+
+/* Find thread by tid */
+struct thread *
+find_thread(tid_t tid)
+{
+
+	struct list_elem *e;
+	struct thread *curr = thread_current();
+
+	if (!list_empty(&curr->children))
+	{
+		for (e = list_begin(&curr->children); e != list_end(&curr->children);
+			 e = list_next(e))
+		{
+			struct thread *t = list_entry(e, struct thread, c_elem);
+			if (t->tid == tid)
+				return t;
+		}
+	}
+	else
+		return NULL;
 }
 
 /* list_less_function for ready_list_insert_ordered.

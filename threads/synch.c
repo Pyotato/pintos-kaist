@@ -38,8 +38,8 @@
 int find_max_priority(struct list *list);
 void remove_released_thread(struct lock *lock);
 void nested_donation(struct lock *lock, int priority);
-bool priority_greatest_sema(const struct list_elem *a, const struct list_elem *b,
-							void *aux UNUSED);
+bool priority_greatest_sema(const struct list_elem *, const struct list_elem *,
+							void *aux);
 
 /* Initializes semaphore SEMA to VALUE.  A semaphore is a
    nonnegative integer along with two atomic operators for
@@ -300,10 +300,8 @@ void lock_release(struct lock *lock)
 			*/
 			/*multiple donation*/
 			donor_priority = find_max_priority(&lock->holder->donations);
-			if (donor_priority > holder_priority) /*lock들고 있는 thread의 priority가 크다면 그값을 갖고 아니면 donate 전 값이 높다면 그 값으로 */
-				lock->holder->priority = donor_priority;
-			else
-				lock->holder->priority = holder_priority;
+			/*lock들고 있는 thread의 priority가 크다면 그값을 갖고 아니면 donate 전 값이 높다면 그 값으로 */
+			lock->holder->priority = donor_priority > holder_priority ? donor_priority : holder_priority;
 		}
 		/*lock 대기 중인 thread 있음*/
 		if (lock->holder->wait_on_lock != NULL)
@@ -335,12 +333,12 @@ void remove_released_thread(struct lock *lock)
 /*2️⃣ max priority 찾기*/
 int find_max_priority(struct list *list)
 {
-	struct list_elem *elem;
+	struct list_elem *e;
 	int max = 0;
 	/*리스트 순회하면서 d_element 값이 크면 겂을 max로 */
-	for (elem = list_begin(list); elem != list_end(list); elem = list_next(elem))
+	for (e = list_begin(list); e != list_end(list); e = list_next(e))
 	{
-		struct thread *t = list_entry(elem, struct thread, d_elem);
+		struct thread *t = list_entry(e, struct thread, d_elem);
 		if (t->priority > max)
 			max = t->priority;
 	}

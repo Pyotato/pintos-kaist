@@ -2,6 +2,7 @@
 #include <list.h>
 #include <debug.h>
 #include <round.h>
+#include <stdbool.h>
 #include <string.h>
 #include "filesys/filesys.h"
 #include "filesys/free-map.h"
