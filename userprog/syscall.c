@@ -95,16 +95,18 @@ sys_exec(const char *cmd_line)
 
 	int file_size = strlen(cmd_line) + 1;
 	char *fn_copy = palloc_get_page(PAL_ZERO);
-	/*🪲 syn_read 테케 통과 되었다가 안되는 경우 해결*/
+
 	if (fn_copy == NULL)
 	{
 		sys_exit(-1);
+		return -1;
 	}
 	strlcpy(fn_copy, cmd_line, file_size);
 
 	if (process_exec(fn_copy) == -1)
 	{
 		sys_exit(-1);
+		return -1;
 	}
 
 	NOT_REACHED();
@@ -168,15 +170,13 @@ sys_read(int fd, void *buffer, unsigned size)
 {
 	check_address(buffer);
 
-	if (fd == 1)
-	{
-		return -1;
-	}
-	lock_acquire(&filesys_lock);
 	if ((0 > fd) || (thread_current()->next_fd <= fd))
 	{
 		sys_exit(-1);
+		return -1;
 	}
+	/*🪲 syn_read 테케 통과 되었다가 안되는 경우 해결*/
+	lock_acquire(&filesys_lock);
 	// not stdin
 	if (fd > 0)
 	{
