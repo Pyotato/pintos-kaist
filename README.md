@@ -18,6 +18,19 @@ The manual is available at https://casys-kaist.github.io/pintos-kaist/.
 ![Alt text](image-5.png)
 ![Alt text](image-6.png)
 
+# LIMITATIONS & ISSUES
+
+- All test cases are stable except for `syn-read`
+- Implementation for test case `syn-read` seems to be unstable in that certain tests pass and others it fails.
+- Possible causes may be :
+- Exception handling in function `sys_read` does not handle all the randomised allocated buffer sizes (see `/tests/filesys/base/syn-read.c` for how test cases are generated.)
+- `sys_read` function does not adequately acquires/ releases locks, and therefore causes the kernel to panic.
+
+```
+Kernel PANIC at ../../threads/thread.c:432 in thread_exit(): assertion `list_empty(&thread_current()->children)' failed.
+
+```
+
 # IMPLEMENTATION REFERENCES
 
 - [kaist gitbook](https://casys-kaist.github.io/pintos-kaist/)
