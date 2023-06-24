@@ -76,6 +76,8 @@ list_begin (struct list *list) {
 struct list_elem *
 list_next (struct list_elem *elem) {
 	ASSERT (is_head (elem) || is_interior (elem));
+	//printf("\n\nnext : %p\n\n",elem->next);
+	
 	return elem->next;
 }
 

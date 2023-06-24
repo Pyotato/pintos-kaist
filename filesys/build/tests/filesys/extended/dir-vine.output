@@ -1,0 +1,28 @@
+Kernel command line: -q -f put dir-vine put tar run dir-vine
+0 ~ 9fc00 1
+100000 ~ 13e0000 1
+Pintos booting with: 
+	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
+	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+Calibrating timer...  157,081,600 loops/s.
+hd0:0: detected 353 sector (176 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
+hd1:0: detected 231 sector (115 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
+Formatting file system...done.
+Boot complete.
+Putting 'dir-vine' into the file system...
+Putting 'tar' into the file system...
+Executing 'dir-vine':
+(dir-vine) begin
+(dir-vine) creating many levels of files and directories...
+Kernel PANIC at ../../devices/disk.c:411 in select_sector(): assertion `sec_no < d->capacity' failed.
+Call stack: 0x800421464e 0x8004210727 0x800420fe88 0x800421dbcf 0x800421d1d7 0x800421b6dd 0x800421aa2c 0x8004219a43 0x80042195d4 0x4003bd 0x401608 0x401651 0Interrupt 0x0d (#GP General Protection Exception) at rip=8004211688
+ cr2=0000000000403819 error=               0
+rax 0000800424300000 rbx 000000000000000d rcx 00000080040b8000 rdx 00000000000003d4
+rsp 0000008004251d10 rbp 0000008004251d20 rsi 000000000000cd0f rdi 0000000000000000
+rip 0000008004211688 r8 0000008004251c28  r9 0000008004217ac7 r10 0000000000000000
+r11 0000000000000216 r12 00000080042196ab r13 0000800425104000 r14 0000800425100000
+r15 0000800425103000 rflags 00000006
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().

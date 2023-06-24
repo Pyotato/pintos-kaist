@@ -3,12 +3,6 @@
 #include "filesys/inode.h"
 #include "threads/malloc.h"
 
-/* An open file. */
-struct file {
-	struct inode *inode;        /* File's inode. */
-	off_t pos;                  /* Current position. */
-	bool deny_write;            /* Has file_deny_write() been called? */
-};
 
 /* Opens a file for the given INODE, of which it takes ownership,
  * and returns the new file.  Returns a null pointer if an
@@ -20,6 +14,9 @@ file_open (struct inode *inode) {
 		file->inode = inode;
 		file->pos = 0;
 		file->deny_write = false;
+		/* 파일 복제된 횟수 카운트 */
+		file->dupCount = 0;
+
 		return file;
 	} else {
 		inode_close (inode);
@@ -44,6 +41,8 @@ file_duplicate (struct file *file) {
 		nfile->pos = file->pos;
 		if (file->deny_write)
 			file_deny_write (nfile);
+		/* fork 됬다는건 새로울 파일을 reopen했으니까 각파일을 참조하고있는지 복사해줘야됨*/
+		nfile->dupCount = file->dupCount;
 	}
 	return nfile;
 }

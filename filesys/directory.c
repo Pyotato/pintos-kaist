@@ -6,24 +6,25 @@
 #include "filesys/inode.h"
 #include "threads/malloc.h"
 
-/* A directory. */
-struct dir {
-	struct inode *inode;                /* Backing store. */
-	off_t pos;                          /* Current position. */
-};
+// /* A directory. */
+// struct dir {
+// 	struct inode *inode;                /* Backing store. */
+// 	off_t pos;                          /* Current position. */
+// };
 
-/* A single directory entry. */
-struct dir_entry {
-	disk_sector_t inode_sector;         /* Sector number of header. */
-	char name[NAME_MAX + 1];            /* Null terminated file name. */
-	bool in_use;                        /* In use or free? */
-};
+// /* A single directory entry. */
+// struct dir_entry {
+// 	disk_sector_t inode_sector;         /* Sector number of header. */
+// 	char name[NAME_MAX + 1];            /* Null terminated file name. */
+// 	bool in_use;                        /* In use or free? */
+// };
 
 /* Creates a directory with space for ENTRY_CNT entries in the
  * given SECTOR.  Returns true if successful, false on failure. */
 bool
 dir_create (disk_sector_t sector, size_t entry_cnt) {
-	return inode_create (sector, entry_cnt * sizeof (struct dir_entry));
+    //! ADD : is_dir 인자 추가
+	return inode_create (sector, entry_cnt * sizeof (struct dir_entry), 1);
 }
 
 /* Opens and returns the directory for the given INODE, of which
@@ -31,6 +32,7 @@ dir_create (disk_sector_t sector, size_t entry_cnt) {
 struct dir *
 dir_open (struct inode *inode) {
 	struct dir *dir = calloc (1, sizeof *dir);
+    // printf("디렉토리 open 섹터 :: %d\n", inode->sector);
 	if (inode != NULL && dir != NULL) {
 		dir->inode = inode;
 		dir->pos = 0;
@@ -84,7 +86,7 @@ lookup (const struct dir *dir, const char *name,
 
 	ASSERT (dir != NULL);
 	ASSERT (name != NULL);
-
+	// printf("lookup before read at\n");
 	for (ofs = 0; inode_read_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
 			ofs += sizeof e)
 		if (e.in_use && !strcmp (name, e.name)) {
@@ -110,7 +112,10 @@ dir_lookup (const struct dir *dir, const char *name,
 	ASSERT (name != NULL);
 
 	if (lookup (dir, name, &e, NULL))
+    {
+        // printf("여기?? %s\n", name);
 		*inode = inode_open (e.inode_sector);
+    }
 	else
 		*inode = NULL;
 
@@ -132,6 +137,7 @@ dir_add (struct dir *dir, const char *name, disk_sector_t inode_sector) {
 	ASSERT (dir != NULL);
 	ASSERT (name != NULL);
 
+
 	/* Check NAME for validity. */
 	if (*name == '\0' || strlen (name) > NAME_MAX)
 		return false;
@@ -147,6 +153,7 @@ dir_add (struct dir *dir, const char *name, disk_sector_t inode_sector) {
 	 * inode_read_at() will only return a short read at end of file.
 	 * Otherwise, we'd need to verify that we didn't get a short
 	 * read due to something intermittent such as low memory. */
+	// printf("before write\n");
 	for (ofs = 0; inode_read_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
 			ofs += sizeof e)
 		if (!e.in_use)
@@ -156,7 +163,11 @@ dir_add (struct dir *dir, const char *name, disk_sector_t inode_sector) {
 	e.in_use = true;
 	strlcpy (e.name, name, sizeof e.name);
 	e.inode_sector = inode_sector;
+	// printf("넣은 애드 섹터 :: %d\n", e.inode_sector);
+    // printf("아이노드 섹터 :: %d\n", dir->inode);
 	success = inode_write_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
+	// printf("디렉토리 애드 섹터 :: %d\n", dir->inode->sector);
+    // printf("디렉토리 추가하는 파일이름 :: %s\n", name);
 
 done:
 	return success;
@@ -175,21 +186,38 @@ dir_remove (struct dir *dir, const char *name) {
 	ASSERT (dir != NULL);
 	ASSERT (name != NULL);
 
+    // if(inode_get_inumber(dir_get_inode(dir)) == inode_get_inumber(dir_get_inode(thread_current()->cur_dir)))
+    //     goto done;
+
+
+    // printf("%s의 오픈카운트 :: %d\n", name, (dir_get_inode(dir)->open_cnt));
+    // if(dir_get_inode(dir)->open_cnt > 1)
+    //     goto done;
+
+    //! ADD : ".", ".." 파일 리턴
+    if(!strcmp(name, ".") || !strcmp(name, ".."))
+        goto done;
+
 	/* Find directory entry. */
 	if (!lookup (dir, name, &e, &ofs))
 		goto done;
 
 	/* Open inode. */
 	inode = inode_open (e.inode_sector);
+    // printf("%s의 오픈카운트 :: %d\n", name, (inode->open_cnt));
 	if (inode == NULL)
 		goto done;
 
+    // printf("찾은 디렉토리 %s의 오프카운트 %d\n", name, inode->open_cnt);
+    if(inode->open_cnt > 2)
+        goto done;
 	/* Erase directory entry. */
 	e.in_use = false;
 	if (inode_write_at (dir->inode, &e, sizeof e, ofs) != sizeof e)
 		goto done;
 
 	/* Remove inode. */
+    // printf("리무브 %s\n", name);
 	inode_remove (inode);
 	success = true;
 
@@ -213,4 +241,12 @@ dir_readdir (struct dir *dir, char name[NAME_MAX + 1]) {
 		}
 	}
 	return false;
+}
+
+//! ADD : 디렉토리 포지션 변경 */
+void
+dir_seek (struct dir *dir, off_t new_pos) {
+	ASSERT (dir != NULL);
+	ASSERT (new_pos >= 0);
+	dir->pos = new_pos;
 }

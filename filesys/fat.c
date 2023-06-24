@@ -152,11 +152,19 @@ fat_boot_create (void) {
 
 void
 fat_fs_init (void) {
-	/* TODO: Your code goes here. */
+	// TODO : Your code goes here. */
+    
+    //! FAT byte 크기
+    //? FAT의 섹터 수 X 512bytes / cluster 당 sector 수
+    fat_fs->fat_length = fat_fs->bs.fat_sectors * DISK_SECTOR_SIZE / (sizeof(cluster_t) * SECTORS_PER_CLUSTER);
+
+	//! DATA sector가 시작하는 지점
+    fat_fs->data_start = fat_fs->bs.fat_start + fat_fs->bs.fat_sectors;
+
 }
 
 /*----------------------------------------------------------------------------*/
-/* FAT handling                                                               */
+// TODO : FAT handling                                                        */
 /*----------------------------------------------------------------------------*/
 
 /* Add a cluster to the chain.
@@ -164,30 +172,83 @@ fat_fs_init (void) {
  * Returns 0 if fails to allocate a new cluster. */
 cluster_t
 fat_create_chain (cluster_t clst) {
-	/* TODO: Your code goes here. */
+	// TODO: Your code goes here. */
+    //? 1번은 root cluster
+	cluster_t i = 2;
+	while (fat_get(i) != 0 && i < fat_fs->fat_length)
+	{
+		++i;
+	}
+	
+    //! FAT가 꽉 찼다
+	if (i == fat_fs->fat_length)
+	{
+		return 0;
+	}
+	
+	fat_put(i, EOChain);
+
+    //! 새로운 chain을 만든다
+	if (clst == 0)
+	{
+		return i;
+	}
+
+	while(fat_get(clst) != EOChain)
+	{
+		clst = fat_get(clst);
+	}
+
+	fat_put(clst, i);
+	return i;
 }
 
 /* Remove the chain of clusters starting from CLST.
  * If PCLST is 0, assume CLST as the start of the chain. */
 void
-fat_remove_chain (cluster_t clst, cluster_t pclst) {
-	/* TODO: Your code goes here. */
+fat_remove_chain (cluster_t clst, cluster_t pclst) { //! pclst는 clst 앞에 꺼
+	// TODO: Your code goes here. */
+	cluster_t next;
+	while(fat_fs->fat[clst] != EOChain)
+	{
+		next = fat_fs->fat[clst];
+		fat_fs->fat[clst] = 0;
+		clst = next;
+	}
+	
+	if(pclst != 0)
+		fat_fs->fat[pclst] = EOChain;
 }
 
 /* Update a value in the FAT table. */
 void
 fat_put (cluster_t clst, cluster_t val) {
-	/* TODO: Your code goes here. */
+	// TODO: Your code goes here. */
+	fat_fs->fat[clst] = val;
 }
 
 /* Fetch a value in the FAT table. */
 cluster_t
 fat_get (cluster_t clst) {
-	/* TODO: Your code goes here. */
+	// TODO: Your code goes here. */
+	return fat_fs->fat[clst];
 }
 
-/* Covert a cluster # to a sector number. */
+/* Convert a cluster # to a sector number. */
 disk_sector_t
 cluster_to_sector (cluster_t clst) {
-	/* TODO: Your code goes here. */
+	// TODO: Your code goes here. */
+	return fat_fs->data_start + clst;
 }
+
+//! 사용 안함
+// /* Convert a sector # to a cluster number. */
+// cluster_t
+// sector_to_cluster (disk_sector_t sector) {
+// 	// TODO: Your code goes here. */
+// 	return sector - fat_fs->data_start;
+// }
+
+/*----------------------------------------------------------------------------*/
+// TODO : FAT handling END                                                    */
+/*----------------------------------------------------------------------------*/
