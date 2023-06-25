@@ -129,7 +129,7 @@ class Pintos(object):
                         'file={},format=raw,index={},media=disk'
                         .format(mnt, 4 + idx)])
 
-        cmd.extend(['-cpu', 'qemu64'])
+        cmd.extend(['-cpu', 'qemu64,vmx=off'])
         cmd.extend(['-m', str(self.mem)])
         cmd.extend(['-no-reboot'])
         # cmd.extend(['-enable-kvm']) # Sadly, kvm is not available on server.
