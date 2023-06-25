@@ -15,8 +15,9 @@ test_main (void)
   int handle;
   int byte_cnt;
   char *buffer;
-
+  
   CHECK ((handle = open ("sample.txt")) > 1, "open \"sample.txt\"");
+  
   buffer = get_boundary_area () - sizeof sample / 2;
   byte_cnt = read (handle, buffer, 20);
   

@@ -1,0 +1,32 @@
+{
+    "files.associations": {
+        "*.inc": "c",
+        "synch.h": "c",
+        "process.h": "c",
+        "syscall.h": "c",
+        "stdio.h": "c",
+        "interrupt.h": "c",
+        "thread.h": "c",
+        "stdint.h": "c",
+        "flags.h": "c",
+        "syscall-nr.h": "c",
+        "gdt.h": "c",
+        "debug.h": "c",
+        "inttypes.h": "c",
+        "intrinsic.h": "c",
+        "loader.h": "c",
+        "file.h": "c",
+        "filesys.h": "c",
+        "boundary.h": "c",
+        "main.h": "c",
+        "lib.h": "c",
+        "vm.h": "c",
+        "palloc.h": "c",
+        "vaddr.h": "c",
+        "pte.h": "c",
+        "disk.h": "c",
+        "fat.h": "c",
+        "inode.h": "c",
+        "directory.h": "c"
+    }
+}
